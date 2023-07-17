@@ -7,21 +7,22 @@ Technologies
 - minikube
 
 Objectifs prioritaires
-- Créer une application ReactJS bidon en vue d'être déployé sur un cluster Kubernetes
-- Utiliser Docker pour le développement local
-- Créer des images hébergés sur Docker Hub
-- Déployer l'application avec minikube sur un environnement de pré-production
+- [x] Créer une application ReactJS bidon en vue d'être déployé sur un cluster Kubernetes
+- [x] Utiliser Docker pour le développement local
+- [x] Créer des images hébergés sur Docker Hub
+- [x] Déployer l'application avec minikube sur un environnement de pré-production
 
 Objectifs secondaires
-- Avoir un suivi de santé des nodes Kubernetes avec Prometheus et Grafana
-- Définir les ressources matériels des pods
-- Avoir un outil de stress-test et déclencher les stress tests
-- Intégrer le CI/CD
+- [x] Avoir un suivi de santé des nodes Kubernetes avec Prometheus et Grafana
+- [] Ajouter le monitoring de l'application React
+- [] Définir les ressources matériels des pods
+- [] Avoir un outil de stress-test et déclencher les stress tests
+- [] Intégrer le CI/CD
 
 Objectifs à venir
-- Intégré une application reactJS complète avec base de données
-- Envelopper l'application avec NextJS 
-- Intégrer des machine learning
+- [] Intégré une application reactJS complète avec base de données
+- [] Envelopper l'application avec NextJS 
+- [] Intégrer des machine learning
 
 
 # Procédure aux objectifs prioritaires
@@ -253,3 +254,73 @@ kubectl get deployment -w
 
 
 # Procédure aux objectifs secondaires
+
+## Installer Helm, Prometheus & Grafana
+
+[Medium Article](https://medium.com/globant/setup-prometheus-and-grafana-monitoring-on-kubernetes-cluster-using-helm-3484efd85891)
+
+1. Installer Helm
+
+```
+curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+sudo apt install apt-transport-https --yes
+echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt update
+sudo apt install helm
+```
+
+2. Ajouter le repos Helm pour Prometheus & Grafana
+
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+```
+
+3. Installer & Démarrer le service Prometheus
+
+```
+helm install prometheus prometheus-community/prometheus
+kubectl expose service prometheus-server --type=NodePort --target-port=9090 --name=prometheus-server-ext
+minikube service prometheus-server-ext --namespace=k8-test
+```
+
+4. Installer & Démarrer le service Grafana
+
+```
+helm install grafana grafana/grafana
+```
+
+Get the decrypted grafana password
+
+```
+kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+
+Expose and start the Grafana service
+
+```
+kubectl expose service grafana --type=NodePort --target-port=3000 --name=grafana-ext
+minikube service grafana-ext
+```
+
+5. Log into Grafana
+
+Obtenir l'URL de Grafana avec son port et y accéder avec un navigateur. Garder en note l'URL de Prometheus.
+
+```
+minikube service list
+```
+
+Se connecter avec l'utilisateur 'admin' et le mot de passe que nous avons décrypté précédemment
+
+Ajouter notre premier DataSource de Prometheus en copiant son URL ainsi que son port. Sauvegarder & tester.
+
+Une fois le DataSource connecté, créons des graphs. Pour simplifier le processus, importer un dashboard provenant de [Grafana](https://grafana.com/grafana/dashboards/). Rechercher `Prometheus` et obtenir son identifiant unique qui devrait être le '3662'.
+
+Après le chargement des données, attacher le au dashboard Prometheus.
+
+
+## Ajouter le monitoring de l'application React
+
+
