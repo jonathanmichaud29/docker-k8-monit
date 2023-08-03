@@ -1,0 +1,57 @@
+version: '3.7'
+
+services:
+  k8-react-app:
+    container_name: k8-react-app
+    build:
+      context: ./react
+      dockerfile: Dockerfile
+    volumes:
+      - './react/my-app:/app'
+      - '/app/node_modules'
+    ports:
+      - 8080:8080
+
+  k8-grafana:
+    image: grafana/grafana
+    container_name: k8-grafana
+    ports:
+      - 8787:3000
+
+  k8-prometheus:
+    image: prom/prometheus
+    container_name: k8-prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+
+  k8-db:
+    image: mariadb:latest
+    container_name: k8-db
+    env_file:
+      - .env.local
+    ports:
+      - 3306:3306
+    volumes:
+      - mariadb-k8:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+
+  k8-mysql-exporter:
+    image: prom/mysqld-exporter
+    ports:
+      - 9104:9104
+    command:
+      - "--mysqld.username=exporter:exporterPWRD"
+      - "--mysqld.address=k8-db:3306"
+    restart: unless-stopped
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+
+
+volumes:
+  prometheus-data:
+  mariadb-k8:

@@ -14,13 +14,13 @@ Objectifs prioritaires
 
 Objectifs secondaires
 - [x] Avoir un suivi de santé des nodes Kubernetes avec Prometheus et Grafana
-- [] Ajouter le monitoring de l'application React
-- [] Définir les ressources matériels des pods
+- [x] Créer un environnement local de développement incluant Prometheus, Grafana, MySQL, ExpressJS React
+- [x] Avoir un accès aux métrics de MySQL et de l'application React
 - [] Avoir un outil de stress-test et déclencher les stress tests
-- [] Intégrer le CI/CD
+- [] Définir les ressources matériels des pods
+- [] Intégrer le CI/CD pour un environnement de test
 
 Objectifs à venir
-- [] Intégré une application reactJS complète avec base de données
 - [] Envelopper l'application avec NextJS 
 - [] Intégrer des machine learning
 
